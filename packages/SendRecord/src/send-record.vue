@@ -1,4 +1,5 @@
-<script setup name="StarrySky">
+<script setup name="SendRecord">
+
 import { ref, onMounted } from 'vue';
 
 const props = defineProps({
@@ -19,7 +20,7 @@ onMounted(() => {
 	let starArr = star.value;
 	starArr.forEach((item) => {
 		let speed = 0.1 + Math.random() * 1;
-		let thisDistance = props.distance + Math.random() * 300;
+		let thisDistance = Number(props.distance) + Math.random() * 300;
 		item.style.transformOrigin = `0 0 ${thisDistance}px`;
 		item.style.transform = `translate3d(0,0,-${thisDistance}px) rotateY(${Math.random() * 360}deg) rotateX(${
 			Math.random() * -50
