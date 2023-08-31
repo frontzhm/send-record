@@ -1,12 +1,26 @@
 {
   "name": "send-record",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "private": false,
+  "version": "0.0.1",
+  "keywords": [
+    "send-record"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/send-record.umd.js",
+  "module": "lib/send-record.es.js",
+  "exports": {
+    "./lib/style.css": "./lib/style.css",
+    ".": {
+      "import": "./lib/vue3-starry-sky.es.js",
+      "require": "./lib/vue3-starry-sky.umd.js"
+    }
   },
   "dependencies": {
     "vue": "^3.3.4"
