@@ -6,14 +6,25 @@ theme: vue-pro
 highlight:
 ---
 
-录制语音主要借助[js-audio-recorder](https://www.npmjs.com/package/js-audio-recorder)库，[案例展示](https://recorder.zhuyuntao.cn/)，[案例代码](https://github.com/2fps/recorder/blob/master/example/App.tsx)
+录制语音主要借助[js-audio-recorder](https://www.npmjs.com/package/js-audio-recorder)库，[g官方案例展示](https://recorder.zhuyuntao.cn/)，[官方案例代码](https://github.com/2fps/recorder/blob/master/example/App.tsx)
+
+这边也尝试用下api，写个简短的DEMO。
+
+## DEMO体验
+
+![recorder3.gif](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/810bade6dfc84d9ea546942ef51b812c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1013\&h=671\&s=953499\&e=gif\&f=167\&b=fdfcfc)
+
+```shell
+npm i send-record
+# <SendRecord/>
+```
 
 ## 需要的数据
 
-- 录制的三种状态：录制前、录制中、录制后。
-- 录制器实例
-- 录制时间显示
-- 录制器当前状态
+*   录制的三种状态：录制前、录制中、录制后。
+*   录制器实例
+*   录制时间显示：这里根据录制器的时间自动计算
+*   录制器当前状态
 
 ```js
 import { reactive, computed, ref } from 'vue';
@@ -48,8 +59,8 @@ function durationToStr(duration: number) {
 
 ## 开始录制
 
-- 开始录音
-- 设置状态为 录制中
+*   开始录音
+*   设置状态为 录制中
 
 ```js
 function startRecord() {
@@ -67,8 +78,8 @@ function startRecord() {
 
 ## 结束录制
 
-- 结束录制
-- 设置状态为 已录制
+*   结束录制
+*   设置状态为 已录制
 
 ```js
 function endRecord() {
@@ -106,28 +117,28 @@ function resetRecord() {
 ```js
 function downloadWAV(){
    console.log('wav: ', recorder.getWAVBlob());
-            recorder.downloadWAV();
+   recorder.downloadWAV();
 }
 
 ```
 
 ## 录制器的监听事件和常用方法
 
-- onprogress: 监听录制中
-- onplay: 监听播放
-- onpauseplay: 监听暂停播放
-- onresumeplay: 监听恢复播放
-- onstopplay: 监听停止播放
-- onplayend: 监听播放结束
+*   onprogress: 监听录制中
+*   onplay: 监听播放
+*   onpauseplay: 监听暂停播放
+*   onresumeplay: 监听恢复播放
+*   onstopplay: 监听停止播放
+*   onplayend: 监听播放结束
 
 与之相对应的的方法：
 
-- start: 开始录制
-- stop: 结束录制
-- play: 播放
-- pausePlay: 暂停播放
-- resumePlay: 恢复播放
-- stopPlay: 停止播放
+*   start: 开始录制
+*   stop: 结束录制
+*   play: 播放
+*   pausePlay: 暂停播放
+*   resumePlay: 恢复播放
+*   stopPlay: 停止播放
 
 ```js
 recorder.onprogress = (params) => {
@@ -152,11 +163,10 @@ recorder.onplayend = () => {
 ```
 
 其他属性和方法如下，其文档地址好像丢失：
-![recorder](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/recorder.png)
-
+![recorder](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1d60ad79e75e4145bb745d3ac9e05380~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=572\&h=1214\&s=225055\&e=png\&b=ffffff)
 
 哦，还有一层
-![recorder2](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/recorder2.png)
+![recorder2](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0998f164613a4ff4bf790e8337d238d9~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=609\&h=435\&s=75933\&e=png\&b=ffffff)
 
 ## 上传音频文件并播放
 
@@ -165,15 +175,15 @@ recorder.onplayend = () => {
 ```js
 const audioEl = ref(new Audio());
   
-  async function playUploadedAudio (e)  {
+ async function playUploadedAudio (e)  {
     const audioFile = e.target.files[0]
-        if(audioFile.isLoaded) {
-            audioEl.value.play();
-            return;
-        }
-        await readyAudio(audioFile);
+    if(audioFile.isLoaded) {
         audioEl.value.play();
+        return;
     }
+    await readyAudio(audioFile);
+    audioEl.value.play();
+ }
   
 function readyAudio(audioFile: any) {
   return new Promise((resolve, reject) => {
@@ -191,9 +201,9 @@ function readyAudio(audioFile: any) {
 }
 ```
 
-## DEMO体验
 
-![recorder3.gif](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/recorder3.gif)
+
+## DEMO代码
 
 ```vue
 <script setup name="SendRecord" lang="ts">
