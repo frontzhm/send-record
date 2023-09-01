@@ -1,18 +1,58 @@
-# Vue 3 + TypeScript + Vite
+---
+title: 怎么录制语音并播放
+tags: vue
+categories: vue
+theme: vue-pro
+highlight:
+---
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+录制语音主要借助[js-audio-recorder](https://www.npmjs.com/package/js-audio-recorder)库。
 
-## Recommended IDE Setup
+## 需要的数据
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+录制的三种状态：录制前、录制中、录制后。
+录制器实例
 
-## Type Support For `.vue` Imports in TS
+```js
+import { ref, reactive } from 'vue';
+// @ts-ignore
+import Recorder from 'js-audio-recorder';
+const WILL_RECORD = 1; // 录制前
+const RECORDING = 2; // 正在录制，点击可以停止
+const RECORDED = 3; // 录制结束，可以其他操作
+const recordStatus = {
+  WILL_RECORD,
+  RECORDING,
+  RECORDED,
+};
+const data = reactive({
+   recorder:new Recorder()
+})
+```
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## 开始录制
+
+- 实例化录制器
+- 开始录音
+- 设置状态为 录制中
+- 监听录制中，显示时间
+
+```js
+function startRecord() {
+  const recorder = new Recorder();
+  data.recorder = recorder;
+  recorder.start().then(() => { console.log('开始录音'); }, (error) => { console.log(`异常了,${error.name}:${error.message}`); });
+  data.curRecordStatus = RECORDING;
+  recorder.onprogress = (params) => {
+    const duration = Math.floor(params.duration);
+    data.durationShow = durationToStr(duration);
+    console.log('音频总数据：', params,params.duration?.toFixed());
+  }
+
+```
+
+## 结束录制
+
+- 

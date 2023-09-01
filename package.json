@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "js-audio-recorder": "^1.0.7",
     "vue": "^3.3.4"
   },
   "devDependencies": {
