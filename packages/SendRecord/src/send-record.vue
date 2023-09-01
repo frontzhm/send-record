@@ -12,24 +12,16 @@ const recordStatus = {
   RECORDED,
 };
 const DURATION_INIT = '00:00';
-
+const recorder = reactive(new Recorder())
 
 const data = reactive<{
   recorder: any;
-  timer: number; // 录音计时器
   durationShow: string; // 录音时长
-  isShowLongTimeLimit: boolean;
-  isShowShortTimeLimit: boolean;
   curRecordStatus: number;
-  fileAudioEl: HTMLAudioElement;
 }>({
   recorder: new Recorder(),
-  timer: 1, // 录音计时器
   durationShow: DURATION_INIT, // 录音时长
-  isShowLongTimeLimit: false,
-  isShowShortTimeLimit: false,
   curRecordStatus: WILL_RECORD,
-  fileAudioEl: new Audio(),
 });
 
 function startOrendRecord() {
@@ -45,15 +37,55 @@ function startOrendRecord() {
 function startRecord() {
   const recorder = new Recorder();
   data.recorder = recorder;
-  recorder.start().then(() => { console.log('开始录音'); }, (error) => { console.log(`异常了,${error.name}:${error.message}`); });
+  recorder.start().then(
+    () => {
+      console.log('开始录音');
+    },
+    (error) => {
+      console.log(`异常了,${error.name}:${error.message}`);
+    }
+  );
   data.curRecordStatus = RECORDING;
   recorder.onprogress = (params) => {
     const duration = Math.floor(params.duration);
     data.durationShow = durationToStr(duration);
-    console.log('音频总数据：', params,params.duration?.toFixed());
-  }
+    console.log('音频总数据：', params, params.duration?.toFixed());
+  };
+  recorder.onplay = () => {
+    console.log('%c回调监听，开始播放音频', 'color: #2196f3');
+  };
+  recorder.onpauseplay = () => {
+    console.log('%c回调监听，暂停播放音频', 'color: #2196f3');
+  };
+  recorder.onresumeplay = () => {
+    console.log('%c回调监听，恢复播放音频', 'color: #2196f3');
+  };
+  recorder.onstopplay = () => {
+    console.log('%c回调监听，停止播放音频', 'color: #2196f3');
+  };
+  recorder.onplayend = () => {
+    data.recorder.isplaying = false;
+    console.log('%c回调监听，音频已经完成播放', 'color: #2196f3');
+  };
 }
-function durationToStr(duration:number){
+
+function endRecord() {
+  data.recorder?.stop();
+  data.curRecordStatus = recordStatus.RECORDED;
+}
+function playRecord() {
+  data.recorder.play();
+}
+
+
+function pauseRecord() {
+  data.recorder.pausePlay();
+}
+
+function resetRecord() {
+  data.curRecordStatus = recordStatus.WILL_RECORD;
+}
+function durationToStr(duration: number) {
   const sumSeconds = Math.floor(duration);
   const minute = Math.floor(sumSeconds / 60);
   const second = sumSeconds % 60;
@@ -61,62 +93,7 @@ function durationToStr(duration:number){
     second < 10 ? '0' + second : second
   }`;
 }
-function countTime() {
-  console.log('duration');
-  const duration = Date.now() - data.recorder.startTime;
-  console.log('duration', duration);
-  // 00:01 超过60s,01:01
-  const sumSeconds = Math.floor(duration / 1000);
-  const minute = Math.floor(sumSeconds / 60);
-  const second = sumSeconds % 60;
-  data.durationShow = `${minute < 10 ? '0' + minute : minute}:${
-    second < 10 ? '0' + second : second
-  }`;
-  console.log('second', second);
-  if (second === MAX_AUDIO_TIME - 10) {
-    data.isShowLongTimeLimit = true;
-  }
-  if (minute ===  1) {
-    endRecord();
-  }
-}
-function endRecord() {
-  clearInterval(data.timer);
-  if (data.isShowShortTimeLimit) {
-    data.curRecordStatus = recordStatus.WILL_RECORD;
-    return;
-  }
 
-  if (data.durationShow === DURATION_INIT) {
-    data.isShowShortTimeLimit = true;
-    return;
-  }
-  const { recorder } = data;
-  recorder.stop();
-  recorder.endTime = Date.now() - 0;
-  recorder.file = new File([recorder.getWAVBlob()], 'hello.wav', {
-    type: 'wav',
-  });
-  recorder.file.duration = recorder.endTime - recorder.startTime;
-  data.curRecordStatus = recordStatus.RECORDED;
-
-  readyAudio(recorder.file);
-}
-function playRecord() {
-  data.fileAudioEl.play();
-  console.log('播放');
-
-  data.recorder.isPlaying = true;
-  // 播放完毕
-  data.fileAudioEl.addEventListener(
-    'ended',
-    () => {
-      data.recorder.isPlaying = false;
-    },
-    false
-  );
-  // 每隔一秒减少一秒，00:02
-}
 function readyAudio(audioFile: any) {
   // 记录时间 console
   console.time('readyAudio');
@@ -135,24 +112,6 @@ function readyAudio(audioFile: any) {
     // 出错就reject
     audioElement.addEventListener('error', reject);
   });
-}
-function playOrPauseRecord() {
-  if (data.recorder.isPlaying) {
-    pauseRecord();
-  } else {
-    playRecord();
-  }
-}
-function pauseRecord() {
-  data.fileAudioEl.pause();
-  console.log('pased', data.fileAudioEl.paused);
-  data.fileAudioEl.currentTime = 0;
-
-  data.recorder.isPlaying = false;
-}
-
-function resetRecord() {
-  data.curRecordStatus = recordStatus.WILL_RECORD;
 }
 </script>
 
@@ -197,12 +156,12 @@ function resetRecord() {
     </div>
     <div
       v-show="data.curRecordStatus === RECORDED"
-      @click="playOrPauseRecord"
       class="icon-box"
     >
       <!-- 播放图标 -->
       <svg
-        v-show="!data.recorder.isPlaying"
+        @click="playRecord"
+        v-if="!data.recorder.isplaying"
         width="20"
         height="20"
         t="1693477278174"
@@ -225,7 +184,8 @@ function resetRecord() {
       </svg>
       <!-- 暂停图标 -->
       <svg
-        v-show="data.recorder.isPlaying"
+        v-else
+        @click="pauseRecord"
         width="20"
         height="20"
         t="1693477687958"

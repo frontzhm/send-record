@@ -55,4 +55,40 @@ function startRecord() {
 
 ## 结束录制
 
+- 结束录制
+- 设置状态为 已录制
+
+```js
+function endRecord() {
+  data.recorder?.stop();
+  console.log(recorder);
+  data.curRecordStatus = recordStatus.RECORDED;
+}
+```
+
+## 播放录制的音频
+
+```js
+function playRecord() {
+  data.recorder.play();
+}
+```
+
+## 停止录制的音频
+
+```js
+function pauseRecord() {
+  data.recorder.pausePlay();
+}
+```
+
+## 重置到录制前
+
+```js
+function resetRecord() {
+  data.curRecordStatus = recordStatus.WILL_RECORD;
+}
+```
+
+
 - 
